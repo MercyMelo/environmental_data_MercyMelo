@@ -1,0 +1,12 @@
+---
+title: "Mercy's Project Homepage"
+author: "Mercy Melo"
+date: "11/22/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Welcome to Mercy's class page!
