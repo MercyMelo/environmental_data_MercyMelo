@@ -1,0 +1,161 @@
+---
+title: "Analysis of Environmental Data"
+subtitle: "DataCamp Assignment: R Basics"
+author: "Mercy Melo"
+output: html_document
+---
+
+# Variables
+Create the following:
+1. A variable a that contains the text of your first name.
+
+1. A variable b1 that contains the number 45.6
+
+1. A variable b2 that contains the text “45.6”
+
+1. A variable c1 that contains the sequence of integers from 0 to 3
+
+```{r}
+a <- "Mercy"
+b1 <- 45.6
+b2 <- "45.6"
+c1 <- 0:3
+
+a
+b1
+b2
+c1
+```
+
+## Question 1
+What type of data is contained in the variable a
+
+"a" is an object that contains nominal categorical data as R recognizes the name simply as a group of letters with no other inherent value.
+
+## Question 2
+What type of data is contained in the variable b1
+
+"b1" is a variable with the numeric value of 45.6
+
+## Question 3
+What type of data is contained in the variable b2
+
+"b2" is an object with no numeric value since it is in quotation marks (R doesn't recognize numbers as numbers when they're in quotations)
+
+## Question 4
+What happens when you add b1 and b2 and why?
+
+```{r}
+#b1 + b2
+```
+
+When you try to add b1 and b2, an error message is received that states there is a "non-numeric argument to binary operator". This is because R only sees b2 as an object with no numeric value and can therefore not add it to another numeric value. If b2 were a variable with the value of 45.6 (like b1 is), R would have no issue adding the two values together.
+
+## Question 5
+Are the variables b1 and c1 of the same type?
+
+"b1" and "c1" both contain numeric variables that are of the same type, but "c1" contains multiple of those variables in a vector format. 
+
+## Question 6
+Explain what happens when you add b1 and c1. Consider both the number of elements in each variable and the data types.
+
+```{r}
+b1 + c1
+```
+When you add "b1" and "c1", the value of "b1" (45.6) is added to each of the numerical variables in the vector of "c1". The output therefore contains four values representing the addition 45.6 to each of the "c1" variables. This occurs because "b1" and "c1" both contain numeric variables that R is able to perform arithmetic processes on.
+
+# Vectors
+Create a vector called v1 that contains a sequence of integers from -2 to 2.
+```{r}
+v1 <- -2:2
+v1
+
+v2 <- v1 * 3
+v2
+
+sum(v2)
+```
+
+## Questions 7-9
+See R code block above
+
+# Matrices
+Create a vector called vec_4 whose elements are the integers from 1 to 12.
+
+Create a matrix mat_1 from vec_4 that has three rows and four columns. The values in mat_1 should be increasing by row.
+
+Create a matrix mat_2 from vec_4 that has three rows and four columns. The values in mat_2 should be increasing by column.
+
+
+```{r}
+vec_4 <- 1:12
+vec_4
+
+mat_1 <- matrix(vec_4, nrow = 3, byrow = TRUE)
+mat_1
+
+mat_2 <- matrix(vec_4, nrow = 3, byrow = FALSE)
+mat_2
+```
+
+## Questions 10 + 11
+See R code block above
+
+# Lists
+Create a list, named my_list_1 with following three elements:
+
+first element is numeric: 5.2
+
+second element is a string "five point two"
+
+third element is a vector of all integers from 0 to 5 [how do you do this?]
+
+Name the elements in my_list_1:
+
+“two”
+
+“one”
+
+“three”
+
+```{r}
+element_1 <- 5.2
+element_2 <- "five point two"
+element_3 <- 0:5
+
+my_list_1 <- list("two"=element_1, "one"=element_2, "three"=element_3)
+my_list_1
+```
+## Question 12
+See R code block above
+
+## Question 13
+Show the R code that would select third element of the list.
+
+```{r}
+my_list_1[3]
+```
+
+## Question 14
+Show the R code that selects the list element with the name “one”. 
+
+```{r}
+my_list_1$one
+```
+
+# Logical Tests and Subsetting
+
+```{r}
+my_vec = rep(1:3, 5)
+my_vec
+
+my_bool_vec <- my_vec == 3
+my_bool_vec
+
+data.frame(my_vec, my_bool_vec)
+
+my_vec[my_bool_vec]
+
+```
+## Questions 15 and 16
+See R code block above

@@ -1,0 +1,134 @@
+---
+title: "ECO634- Lab 9"
+author: "Mercy Melo"
+date: "11/10/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+require(palmerpenguins)
+```
+
+# Question 1
+State the null hypothesis of the Chi-square test.
+
+The null hypothesis of this Chi-square test is that Brown Creeper presence/absence does not follow the same distribution over edge/interior habitat that would be expected using randomized expected values. 
+
+# Question 2
+Consider the results of your test and explain whether you think that Brown Creepers show a significant habitat preference.
+
+My Chi-square test provided a significant p-value of 1.386e-06, which suggests that Brown Creepers do exhibit a habitat preference since their presence/absence strays from the expected values under the null hypothesis. 
+
+# Question 3
+Show the R-code you can use to create a model fit (call it fit_species) of penguin body mass as predicted by penguin species.
+
+```{r body mass ~ species lm}
+fit_species = 
+  lm(
+    formula = body_mass_g ~ species,
+    data = penguins)
+```
+
+# Question 4
+Show the R-code you can use to create a model fit (call it fit_sex) of penguin body mass as predicted by sex.
+
+```{r body mass ~ sex}
+fit_sex = 
+  lm(
+    formula = body_mass_g ~ sex,
+    data = penguins)
+```
+
+# Question 5
+Show the R-code you can use to create a model fit (call it fit_both) of penguin body mass as predicted by species and sex.
+
+```{r body mass ~ species + sex}
+fit_both = 
+  lm(
+    formula = body_mass_g ~ species + sex,
+    data = penguins)
+```
+
+# Question 6
+Include a conditional boxplot corresponding to your fit_species model.
+
+```{r species boxplot}
+boxplot(formula = body_mass_g ~ species,
+        data = penguins, 
+        ylab = "Body Mass (g)",
+        xlab = "Species")
+```
+
+# Question 7
+Include a conditional boxplot corresponding to your fit_sex model.
+ 
+```{r sex boxplot}
+boxplot(formula = body_mass_g ~ sex,
+        data = penguins, 
+        ylab = "Body Mass (g)",
+        xlab = "Sex",
+        names = c("Female", "Male"))
+```
+
+# Question 8
+Include a conditional boxplot corresponding to your fit_both model.
+
+```{r both boxplot}
+boxplot(formula = body_mass_g ~ sex + species,
+        data = penguins,
+        ylab = "Body Mass (g)",
+        xlab = " ",
+        las = 2,
+        names = c("Female \n Adelie", "Male \n Adelie", 
+                  "Female \n Chinstrap", "Male \n Chinstrap",
+                  "Female\n Gentoo", "Male \n Gentoo"))
+```
+
+# Question 9
+Based on the shapes of the boxes, which of the models (if any) do you think may have problems fulfilling the heterogeneity assumption?
+
+The boxplot of the species model shows some slight heterogeneity in variance as the Gentoo box is a little smaller than the Chinstrap and Adelie boxes, but this may not be a significant difference. The boxes from the other two models seem to be quite homogeneous in size, suggesting that the groups likely have equal variance. 
+
+# Question 10
+State the null hypothesis of the Bartlett test.
+
+The null hypothesis of the Bartlett test is that the variances within the groups being compared (the levels of the specified factor) are equal. 
+
+# Question 11
+What was the p-value from the Bartlett test of homogeneity for observations grouped by species?
+
+My p-value was 0.0501, which indicates that the groups have similar variances, but are close to being significantly different. 
+
+```{r bartlett species}
+bartlett.test(body_mass_g ~ species, data=penguins)
+```
+
+# Question 12
+What was the p-value from the Bartlett test of homogeneity for observations grouped by sex?
+
+My p-value was 0.0319, which indicates that the two sexes have different levels of variance. 
+
+```{r bartlett sex}
+bartlett.test(body_mass_g ~ sex, data=penguins)
+```
+
+# Question 13
+What was the p-value from the Bartlett test of homogeneity for observations grouped by both factors?
+
+My p-value was 0.1741, which indicates that variance within each of the groups is not significantly different. 
+
+```{r bartlett both}
+ss = aggregate(
+  body_mass_g ~ species + sex,
+  data = penguins,
+  FUN = c)
+str(ss)
+
+bartlett.test(ss$body_mass_g)
+```
+
+# Question 14
+Based on the results of the Bartlett tests, do you anticipate any issues with heterogeneity in any of the models?
+
+Yes, there may be issues of heterogeneity when using the model based on sex because the variances of males and females were statistically different. The other two Bartlett tests showed that variance was not significantly different between the groups, so you are not likely to incur issues of heterogeneity using those models.

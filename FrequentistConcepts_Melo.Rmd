@@ -1,0 +1,104 @@
+---
+title: "Frequentist Concepts Assignment"
+author: "Mercy Melo"
+date: "10/21/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Question 1
+What is the probability of observing a count of exactly 3 successes in a binomial distribution with parameters n = 4 and p = 0.75?
+
+42.19%
+
+```{r dbinom fun}
+dbinom(3, 4, p=0.75)
+```
+
+# Question 2
+What is the probability of observing a count of 3 successes or fewer in a binomial distribution with parameters n = 4 and p = 0.75?
+
+68.36%
+
+```{r pbinom fun}
+pbinom(3, 4, p= 0.75)
+```
+
+# Question 3
+What is the probability of observing more than 3 successes in a binomial distribution with parameters n = 5 and p = 0.75?
+
+63.28%
+
+```{r pbinom fun2}
+dbinom(4, 5, p= 0.75) + dbinom(5, 5, p= 0.75)
+#or
+1-pbinom(3, 5, p= 0.75)
+```
+
+# Question 4
+What is the probability of observing a value of less than 1.2 from a normally-distributed population with mean = 2 and standard deviation = 2?
+
+34.46%
+
+```{r pnorm fun}
+pnorm(1.2, mean= 2, sd= 2)
+```
+
+# Question 5
+What is the probability of observing a value of greater than 1.2 from a normally-distributed population with mean = 2 and standard deviation = 2?
+
+65.54%
+
+```{r, pnorm fun2}
+1-pnorm(1.2, mean= 2, sd= 2)
+```
+
+# Question 6
+ What is the probability of observing a value between 1.2 and 3.2 from a normally-distributed population with mean = 2 and standard deviation = 2?
+
+38.12%
+
+```{r pnorm fun3}
+ pnorm(3.2, mean= 2, sd= 2) - pnorm(1.2, mean= 2, sd= 2)
+```
+
+# Question 7
+Sample size = 1. Describe how the shape of the histogram changes as you continue to press the sample button.
+ 
+The shape of the histogram steadily becomes closer and closer to the shape of the beta distribution as more samples are taken. At first the histogram was mildly following the same shape as the distribution, but wasn't as smooth. There were obvious "bumps" in the histogram where sampling error due to the small sample size over-exaggerated the abundance of some of the values within the distribution. As more samples were added, these "bumps" smoothed out likely due to increased sample size providing a more representative sample. 
+ 
+# Question 8
+Sample size = 2. Describe how the shape of the histogram changes as you continue to press the sample button.
+
+This time the histogram seems to become closer in shape to the beta distribution as more samples are added, but the histogram is a little less skewed than the beta distribution. My beta distribution is skewed to the right quite heavily, and the histogram resulting from repeated sampling had a peak that was to the left of my beta distribution's peak. The histogram also did not smooth out its "bumps" over the course of adding many samples like the histogram of sample size = 1. The range of the values covered by the histogram also seems slightly limited compared to the full beta distribution (no histogram bins in the tails of the beta distribution). 
+
+# Question 9
+Sample size = 15. Describe how the shape of the histogram changes as you continue to press the sample button.
+
+This histogram was very limited in scope compared to the range of values covered by the beta distribution. Instead of the histogram having values that span the entire range of the distribution, it only displayed 5 bins of values that were just to the left of my distribution's peak (less skewed than the beta distribution). As more samples were added, the histogram did not add any more bins, but instead began forming a more normal distribution shape within this limited range. 
+
+# Question 10
+Why is there such a drastic change in the shape of the sampling distribution when you change the sample size from 1 to 2?
+
+The histogram displays the sample distribution, which is the mean of all samples within that draw. As sample size increases, the means of each draw is likely to represent the mean of the population. For a sample size of 1, the mean is based on that single value, so it is much more likely that we will see the entire range of values covered by the beta distribution since we only need to pull that extreme value once. As we increase the sample size to 2, however, we now are averaging two randomly-sampled values from the beta distribution. Since it is an average of two values rather than just a single value, it is less likely that we will pull two extreme values resulting in an average value in one of our distribution tails. Because of this, outliers in the beta distribution may be underestimated in the histogram when the sample size is greater than one. 
+
+# Question 11
+What are the two main factors that determine the width of the sampling distribution of the mean?
+
+The sample size and standard deviation both have a great impact on the width of the sampling distribution.
+
+# Question 12
+Library of Babel: How many 3-character words are possible?
+
+25 x 25 x 25 = 15,625 words
+
+# Question 13
+How many books would the Library contain if you added one additional position to the book size? Express your answer in terms of B.
+
+410 x 40 x 81 = 1328400
+1328400/1312000 = 1.0125
+
+Adding 1 extra position would make the library 1.0125 times larger, so 1.0125B

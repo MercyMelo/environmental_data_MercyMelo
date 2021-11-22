@@ -1,0 +1,233 @@
+---
+title: "ECO634- Lab 5"
+author: "Mercy Melo"
+output: html_document
+---
+# Functions and Datasets Required for Exercise
+
+```{r}
+#Define linear function
+line_point_slope = function(x, x1, y1, slope)
+{
+  get_y_intercept = 
+    function(x1, y1, slope) 
+      return(-(x1 * slope) + y1)
+  linear = 
+    function(x, yint, slope) 
+      return(yint + x * slope)
+  return(linear(x, get_y_intercept(x1, y1, slope), slope))
+}
+
+#Define exponential function
+exp_fun = function(x, a, b)
+{
+  return(a * exp(-b * x))
+}
+
+#Define Ricker function     
+ricker_fun = function(x, a, b) 
+{
+  return(a * x * exp(-b * x))
+}
+
+#Importing Salamander Data
+require(here)
+disp <- read.csv(here("data", "dispersal.csv"))
+```
+
+# Question 1
+Show the R code you used to create exp_fun()
+
+```{r}
+exp_fun = function(x, a, b)
+{
+  return(a * exp(-b * x))
+}
+```
+
+# Question 2
+Create a single figure containing 4 exponential curves using provided parameter values
+
+```{r}
+{
+  curve(
+  exp_fun(x, 1.9, 0.1),
+  from = 0, to = 10, add = FALSE,
+  col = "black", lty = "solid",
+  xlim = c(0,10), ylim = c(0,2),
+  main = "Exponential Functions",
+  ylab = "f(x)", xlab = "x")
+
+curve(
+  exp_fun(x, 1.9, 0.3),
+  from = 0, to = 10, add = TRUE,
+  col = "black", lty = "dotted")
+
+curve(
+  exp_fun(x, 1.2, 0.2),
+  from = 0, to = 10, add = TRUE,
+  col = "red", lty = "solid")
+
+curve(
+  exp_fun(x, 1.2, 0.4),
+  from = 0, to = 10, add = TRUE,
+  col = "red", lty = "dotted")
+}
+
+```
+
+# Question 3
+Observe how the curves vary as you change the two parameters’ values. Qualitatively describe what happens to the curve as you vary parameter a
+
+As you vary parameter a, the vertical position of the curve changes such that the f(x) value at x = 0 (the y-intercept of the above plots) is different based on a's value. Higher values of a will shift the curve upwards while lower value of a will shift the curve downwards. The slope of the curve alters slightly with a changing a value, but that appears to be a side-effect of the vertical positioning shift. 
+
+# Question 4
+Observe how the curves vary as you change the two parameters’ values. Qualitatively describe what happens to the curve as you vary parameter b
+
+As you vary parameter b, the slope of the curve changes dramatically, but the "y-intercept" remains the same. This results in two curves of differing b values beginning at the same x = 0 value, but then diverging based on the value of b. Larger b values produce steeper slopes that reach an f(x) = 0 value much more quickly than smaller b values.
+
+# Question 5
+Create a single figure containing 6 Ricker curves using provided parameter values
+
+```{r}
+{
+  curve(
+  ricker_fun(x, 25, 0.1), 
+  from = 0, to = 50, add = FALSE,
+  col = "black", lty = "solid",
+  main = "Ricker Functions",
+  ylab = "f(x)", xlab = "x")
+
+curve(
+  ricker_fun(x, 20, 0.2), 
+  from = 0, to = 50, add = TRUE,
+  col = "black", lty = "dotted")
+
+curve(
+  ricker_fun(x, 10, 0.2), 
+  from = 0, to = 50, add = TRUE,
+  col = "black", lty = "dotted")
+
+curve(
+  ricker_fun(x, 75, 0.3), 
+  from = 0, to = 50, add = TRUE,
+  col = "red", lty = "solid")
+
+curve(
+  ricker_fun(x, 50, 0.3), 
+  from = 0, to = 50, add = TRUE,
+  col = "red", lty = "dotted")
+
+curve(
+  ricker_fun(x, 40, 0.3), 
+  from = 0, to = 50, add = TRUE,
+  col = "red", lty = "dotted")
+}
+```
+
+# Question 6
+Observe how the curves vary as you change the two parameters’ values. Qualitatively describe what happens to the curve as you vary parameter a
+
+As you vary parameter a, the height of the highest point in the curve changes in response. Larger values of a produce taller peaks in this high-point and smaller values of a produce shorter peaks. Both curves appear to have the same slope, same peak width, and follow the same general pattern despite the change in peak height.
+
+# Question 7
+Observe how the curves vary as you change the two parameters’ values. Qualitatively describe what happens to the curve as you vary parameter b
+
+As you vary parameter b, the width and height of the peak of the curve changes. The b parameter seems to limit the overall size of the peak in this manner with larger b values producing shorter and narrower peaks while smaller b values produce wider and taller peaks. 
+
+# Question 8
+Linear Model: Provide the values of the slope and intercept parameters you chose. Briefly describe how you chose the values.
+
+I chose a slope of -0.001 and a point intercept of (300, 0.65). To find these values, I began by creating a scatterplot of the salamander data using distance class on the x-axis and dispersal rate of new breeders on the y-axis. I thought of what general line would best fit the data and chose a point within that line to derive my intercept values from (I just approximated the values from the axes). I then calculated an approximate slope by choosing another point on my imaginary line and calculating (y2-y1)/(x2-x1). This gave me a very small value for slope, so I played around with small values until I got the desired fit.
+
+# Question 9
+Include a scatterplot of the salamander data with your fitted linear model.
+
+```{r}
+plot(disp$dist.class, disp$disp.rate.ftb, 
+     main = "Salamander Dispersal
+     for First Time Breeders", 
+     ylab = "Dispersal Rate",
+     xlab = "Distance Class")
+curve(
+  line_point_slope(x, 300, 0.65, -0.001),
+  add = TRUE)
+```
+
+# Question 10 
+Exponential Model: Provide the values of the a and b. Briefly describe how you chose the values.
+
+I chose an a value of 80 and a b value of 0.01. I chose these values by starting with a random value for each parameter (based on the previous exponential models in this exercise) and adjusting them until I got the desired fit. When the line was too flat, I decreased the b value and when the line needed to be shifted in location, I adjusted the a value.
+
+# Question 11
+Include a scatterplot of the salamander data with your fitted exponential model.
+
+```{r}
+plot(disp$dist.class, disp$disp.rate.ftb,
+    main = "Salamander Dispersal
+     for First Time Breeders", 
+     ylab = "Dispersal Rate",
+     xlab = "Distance Class")
+curve(
+  exp_fun(x, 40, 0.01),
+  from = 100, to = 1600, add = TRUE,
+  col = "black", lty = "solid")
+```
+
+# Question 12
+Ricker Model: Provide the values of the a and b. Briefly describe how you chose the values.
+
+I chose a value of 0.01 for a and 1/240 for b. It was a challenge to find these values, but I took the approach of beginning with mostly random values and altering them until I was able to see the curve in my plot window (I originally had a set way too large and was unable to see the curve- it just looked like an exponential function). Once I was able to see the curve, I adjusted my a value to fit my desired vertical height and adjusted my b value to determine the width of the curve.
+
+# Question 13
+Include a scatterplot of the salamander data with your fitted ricker model.
+
+```{r}
+plot(disp$dist.class, disp$disp.rate.ftb,
+    main = "Salamander Dispersal
+     for First Time Breeders", 
+     ylab = "Dispersal Rate",
+     xlab = "Distance Class")
+curve(
+  ricker_fun(x, 0.01, 1/240), 
+  from = 100, to = 1500, add = TRUE,
+  col = "black", lty = "solid")
+```
+
+# Question 14
+Show the R code you used to create your data frame of model residuals.
+
+```{r}
+#For linear model
+y_pred_lin = line_point_slope(disp$dist.class, 300, 0.65, -0.001)
+resids_linear <- disp$disp.rate.ftb - y_pred_lin
+
+#For exponential model
+y_pred_exp = exp_fun(disp$dist.class, 40, 0.01)
+resids_exp <- disp$disp.rate.ftb - y_pred_exp
+
+#For Ricker model
+y_pred_rick = ricker_fun(disp$dist.class, 0.01, 1/240)
+resids_ricker <- disp$disp.rate.ftb - y_pred_rick
+
+#Adding all residuals into a dataframe
+resids_data_frame <- data.frame(resids_linear, resids_exp, resids_ricker)
+head(resids_data_frame)
+```
+
+# Question 15
+Include histograms of the residuals for each of your three models.
+
+```{r}
+par(mfrow = c(1, 3))
+hist(resids_linear, main = "Residuals of Linear Model",
+     xlab = "Residuals", ylab = "Frequency")
+hist(resids_exp, main = "Residuals of Exponential Model",
+     xlab = "Residuals", ylab = "Frequency")
+hist(resids_ricker, main = "Residuals of Ricker Model",
+     xlab = "Residuals", ylab = "Frequency")
+
+```
+
+
+

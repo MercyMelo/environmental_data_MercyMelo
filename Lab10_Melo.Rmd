@@ -1,0 +1,89 @@
+---
+title: "ECO634- Lab 10"
+author: "Mercy Melo"
+date: "11/17/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Question 1
+Submit the code you used to build your ANOVA by hand.
+
+```{r ANOVA by hand}
+require(here)
+rope <- read.csv(here("data", "rope.csv"), header = TRUE, sep = ",")
+rope$rope.type = factor(rope$rope.type)
+
+n_obs = nrow(rope)
+n_groups = length(levels(rope$rope.type))
+
+ss_tot = sum((rope$p.cut - mean(rope$p.cut))^2)
+df_tot = n_obs-1
+    
+
+agg_mean = aggregate(
+  x = rope$p.cut,
+  by = list(rope$rope.type), 
+  FUN = mean)
+
+agg_resids = aggregate(
+  x = rope$p.cut,
+  by = list(rope$rope.type), 
+  FUN = function(x) (x - mean(x)))
+
+agg_sq_resids = aggregate(
+  x = rope$p.cut,
+  by = list(rope$rope.type), 
+  FUN = function(x) (sum((x - mean(x))^2)))
+
+
+ss_within = sum(agg_sq_resids$x)
+df_within = n_obs - n_groups
+              
+ss_among = ss_tot - ss_within
+df_among = n_groups - 1
+                        
+ms_within = ss_within / df_within
+ms_among  = ss_among / df_among
+                        
+                       
+f_ratio = ms_among / ms_within
+f_pval = pf(f_ratio, df_among, df_within, lower.tail = FALSE)
+f_pval
+```
+
+# Question 2
+Examine the conditional boxplot in the Partitioning Variance: Within-Group section of the walkthrough. Based on the figure, do you think there are equal variances among the groups?
+
+The groups do not appear to have equal variances. 
+
+# Question 3
+Conduct a Bartlett test to assess the homoteneity of variances in the rope type groups. Report the p-value.
+
+p-value = 0.00143
+```{r bartlett test}
+bartlett.test(agg_resids$x)
+```
+
+# Question 4
+Given your graphical assessment (question 2) and the Bartlett test, do you think an ANOVA-type analysis is appropriate on the raw data? Explain why or why not.
+
+I would not recommend an ANOVA for this raw dataset because the variance between the rope type groups is very unequal via both visual inspection and Bartlett test. This unequal variance within groups violates the assumption of equal variance that is required to run an ANOVA. 
+
+# Question 5
+Which rope type is the base case?
+
+The "BLAZE" rope type is the base case.
+
+# Question 6
+What is the mean percent cut of the base case rope? Show your calculation using value(s) from the model coefficient table.
+
+Mean percent cut of the base case rope is 0.36714, which is just the "Estimate" of the "Intercept" group in the model coefficient table. 
+
+# Question 7
+What is the mean percent cut rope type XTC? Show your calculation using value(s) from the model coefficient table.
+
+The mean percent cut for rope type XTC would be 0.36714 (the base case mean percent cut) MINUS 0.10164 (the estimate for the XTC group). The mean percent cut for rope type XTC would therefore be 0.2655. 

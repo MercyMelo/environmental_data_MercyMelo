@@ -1,0 +1,151 @@
+---
+title: "ECO634- Lab 7"
+author: "Mercy Melo"
+date: "10/20/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+require(here)
+```
+
+```{r data prep}
+require(palmerpenguins)
+gentoo = subset(penguins, species == "Gentoo")
+```
+
+# Question 1
+What is the sample size, n? Show your code.
+
+```{r sample size}
+sum(!is.na(gentoo$bill_length_mm))
+```
+
+# Question 2
+What is the sample standard deviation? Show your code.
+
+```{r standard deviation}
+sd(gentoo$bill_length_mm, na.rm = TRUE)
+```
+
+# Question 3
+What are the critical t-values? Show your code.
+
+```{r critical t values}
+n = sum(!is.na(gentoo$bill_length_mm))
+upper_t = qt(0.975, df = n-1)
+lower_t = qt(0.025, df = n-1)
+upper_t
+lower_t
+```
+
+# Question 4
+What is the sample standard error? Show your code.
+
+```{r standard error}
+sse_mean = function(x)
+{
+  sd(x, na.rm=TRUE) / sqrt(sum(!is.na(x)))
+}
+
+sse = sse_mean(gentoo$bill_length_mm)
+sse
+```
+
+# Question 5
+Finally, construct the CI and show your code.
+
+Confidence interval is 47.505 +/- 0.55
+```{r constructing CI}
+mean(gentoo$bill_length_mm, na.rm = TRUE)
+radius = sse * upper_t
+radius
+```
+
+# Question 6/7/8
+Using boot(), what is the CI? Show your code.
+
+Confidence interval is 47.505 +/- 0.53447
+```{r boot CI}
+require(boot)
+
+boot_mean = function(x, i)
+{
+  return(mean(x[i], na.rm = TRUE))
+}
+
+gentoo_boot = boot(data = gentoo$bill_length_mm, statistic = boot_mean, R = 10000)
+
+print(gentoo_boot)
+
+quantile(gentoo_boot$t, c(0.025, 0.975))
+```
+
+# Question 9
+Show your completed rarefaction_sampler() function.
+
+```{r rarefaction sampler function}
+rm(list = ls())
+moths = read.csv(here("data", "moths.csv"))
+
+rarefaction_sampler = function(input_dat, n_iterations)
+{
+  n_input_rows = nrow(input_dat)
+  
+  results_out = matrix(
+    nrow = n_iterations,
+    ncol = n_input_rows)
+  
+  for(i in 1:n_iterations)
+  {
+   
+    for(j in 1:n_input_rows)
+    {
+  
+      rows_j = sample(n_input_rows, size = j, replace=TRUE)
+      
+      t1 = input_dat[rows_j, ]
+      
+      t2 = apply(t1, 2, sum)
+      
+      results_out[i, j] = sum(t2 > 0)
+    }
+  }
+  return(results_out)
+}
+
+rarefact = rarefaction_sampler(moths[,-1], 100)
+head(rarefact)
+```
+
+# Question 10
+What did you find most difficult about building the function?
+
+I had difficulty conceptualizing a loop within a loop and figuring out which components needed to be within each loop's curly braces. 
+
+# Question 11
+Show the code you used to perform the simulations and construct the curve.
+
+```{r 10000 replications simulation}
+rarefact10000 = rarefaction_sampler(moths[,-1], 10000)
+
+rare_mean = apply(rarefact10000, 2, mean)
+rare_quant = apply(rarefact10000, 2, quantile, probs=c(0.025, 0.975))
+rare = t(rbind(rare_mean, rare_quant))
+```
+
+# Question 12
+Include your rarefaction curve plot in your report. Show the R-code you used to create your plot.
+
+```{r rarefaction curve}
+matplot(rare, type='l', xlab='Number of sampling plots', ylab='Species richness', 
+        main='Likelihood of Encountering Rare Moths \n Based on Sampling Effort')
+legend('bottomright', legend=c('Average','Lower Limit','Upper Limit'),
+  lty=c(1,2,3),col=c(1,2,3), inset=c(.1,.1))
+```
+
+# Question 13
+About how many sites should you visit if you want to see all of the moth species? Explain your reasoning using your rarefaction curve figure.
+
+To see all 10 of the moth species, you should visit at least 12 sites. Looking at the rarefaction curve, visiting 12 sites gives you a pretty high mean probability of seeing rare moth species, suggesting you would see about 10 species on average. When you focus on the "lower limit" curve, you will notice that after 12 sites, it is extremely likely that you will see at least 9 of the 10 species. Of course you could see all 10 species after visiting just 3 sites (as indicated by the "upper limit" curve), but visiting 12 sites gives you the best probability of seeing at least 9, and likely 10, species with the fewest number of sites visited. 

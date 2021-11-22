@@ -1,0 +1,167 @@
+---
+title: "ECO634- Lab 6"
+author: "Mercy Melo"
+output: html_document
+---
+
+```{r loading palmerpenguins}
+require(palmerpenguins)
+```
+# Question 1
+Copy your code chunk for your SSE function
+
+```{r SSE function}
+rm(list = ls())
+
+sse_mean = function(x)
+  {
+  sd(x, na.rm=TRUE) / sqrt(sum(!is.na(x)))
+}
+
+sse_mean(penguins$body_mass_g)
+sse_mean(mtcars$mpg)
+```
+
+# Question 2
+Copy your code chunk for your two_group_resample function
+
+```{r resample function}
+two_group_resample = function(x, n_1, n_2)
+{
+  dat_1 = sample(x, n_1, replace = TRUE)
+  dat_2 = sample(x, n_2, replace = TRUE)
+  
+  difference_in_means = 
+    mean(dat_1, na.rm = TRUE) - mean(dat_2, na.rm = TRUE)
+  
+  return(difference_in_means)
+}
+```
+
+
+# Question 3
+Does your function perform Monte Carlo or bootstrap resampling, i.e. does it simulate a null or an alternative hypothesis? 
+
+This function performs Monte Carlo resampling. It uses the flipper lengths of all species to produce the resampled values, rather than using each species' flipper length values separately to produce dat_1 from one species' data and dat_2 from the other species's data. To perform bootstrap resampling, you would use a function like this:
+
+```{r}
+two_group_resample2 = function(x, y, n_1, n_2)
+{
+  dat_1 = sample(x, n_1, replace = TRUE)
+  dat_2 = sample(y, n_2, replace = TRUE)
+  
+  difference_in_means = 
+    mean(dat_1, na.rm = TRUE) - mean(dat_2, na.rm = TRUE)
+  
+  return(difference_in_means)
+}
+
+adelie <- subset(penguins, species == "Adelie")
+chinstrap <- subset(penguins, species == "Chinstrap")
+
+two_group_resample2(adelie$flipper_length_mm, chinstrap$flipper_length_mm, 57, 109)
+
+```
+
+# Question 4
+Create histogram of the resampled differences of means
+
+```{r, echo=FALSE}
+dat_pen <- subset(penguins, species != "Gentoo")
+n = 2000
+difference_in_means = c()
+for (i in 1:n)
+{
+  difference_in_means = c(
+    difference_in_means,
+    two_group_resample(dat_pen$flipper_length_mm, 68, 152)
+  )
+}
+hist(difference_in_means, xlab = "Mean Differences", main = "Mean Differences in 2000 Resamples")
+```
+
+# Question 5
+How many of your resampled differences of means were greater than 5.8? Include code used to find this value.
+
+None of my resampled mean differences were greater than 5.8. Since the t-test displayed a p-value of 6.05e-08 (less than 0.0001), we can predict that a mean difference of 5.8 or larger would be seen fewer than 1 out of 10000 times. Since we only resampled 2000 times, we wouldn't expect to find a difference in means of 5.8 or larger. 
+
+```{r}
+n = 2000
+difference_in_means = c()
+for (i in 1:n)
+{
+  difference_in_means = c(
+    difference_in_means,
+    two_group_resample(dat_pen$flipper_length_mm, 68, 152)
+  )
+}
+hist(difference_in_means)
+
+t_test = t.test(dat_pen$flipper_length_mm ~ dat_pen$species)
+t_test
+diff_observed = round(diff(t_test$estimate), digits = 3)
+print(diff_observed, digits = 3)
+
+sum(abs(difference_in_means) >= diff_observed)
+```
+
+# Question 6
+Given a p value of less than 1 per 10 million, how many simulations do you think you would have to do to see a difference in mean flipper length equal to or greater than 5.8 mm?
+
+You would have to run at least 10 million simulations to have a good chance of seeing a mean difference of 5.8 or larger. Even running the simulation 10 million times would not guarantee that you'd see this difference since the sampling method is based on randomly-generated values. 
+
+# Question 7
+Include a boxplot of a chosen variable from the penguins dataset.
+
+```{r, echo= FALSE}
+dat_pen = droplevels(subset(penguins, species != "Gentoo"))
+boxplot(body_mass_g ~ species, data = dat_pen)
+```
+
+# Question 8
+Report the group means and difference between the means.
+
+```{r}
+agg_means = aggregate(
+  body_mass_g ~ species, 
+  data = dat_pen, 
+  FUN = "mean", 
+  na.rm = TRUE)
+diff_crit = diff(agg_means[, 2])
+
+agg_means
+diff_crit
+```
+
+# Question 9
+Interpret the p-value from the t-test output in plain, non-technical English that a non-statistician would understand.
+
+The p-value from the t-test was 0.5879. This value indicates that if both penguin species actually had the same average mass, we would see this difference in our average masses for each species at least 58.79% of the time. So if we sampled 100 groups of these two species of penguin, we are likely to see that the two species have this same amount of difference between their average masses (around 30 grams) around 60 times out of those 100 samplings. 
+Typically we set the critical level of significance at p = 0.05 (we would see this difference between the means only 5% of the time), so we would consider our p-value to be statistically insignificant. This means that our current data for these two penguin species does not provide enough evidence to say that the two penguin species actually have different average masses. 
+
+# Question 10
+How many differences in means were greater than diff_crit?
+
+Around 600, which is logical considering the p-value from the t-test was around 0.59. Since we sampled around 1000 times, we would predict we would find a difference in means greater than our diff_crit value around 590 times. 
+
+```{r}
+n = 1000
+difference_in_means_mass = c()
+for (i in 1:n)
+{
+  difference_in_means_mass = c(
+    difference_in_means_mass,
+    two_group_resample(dat_pen$body_mass_g, 68, 152)
+  )
+}
+
+sum(abs(difference_in_means_mass) >= diff_crit)
+```
+
+# Question 11
+Include a histogram of your simulation results in your report. Make sure it has appropriate title and labels.
+
+```{r, echo = FALSE}
+hist(difference_in_means_mass, main = "Differences in Simulated Mean Masses \n of Adelie and Chinstrap Penguins", 
+     xlab = "Differences in Means")
+```

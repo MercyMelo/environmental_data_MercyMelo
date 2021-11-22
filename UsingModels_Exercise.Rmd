@@ -1,0 +1,139 @@
+---
+title: "ECO602- Using Models Activity"
+author: "Mercy Melo"
+date: "11/4/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+require(here)
+catrate <- read.csv(here("data", "catrate.csv"), header = TRUE, sep = ",")
+```
+
+# Question 1
+Create a histogram of the salamander reproduction catastrophic rates.
+
+```{r catrate hist}
+hist(catrate$cat.rate, 
+     main = "Histogram of \n Salamander Catastrophic Rates", 
+     xlab = "Catastrophic Rate")
+```
+
+# Question 2
+Conduct a Shapiro-Wilk test of normality of the salamander catastrophic rates. Report the p-value and show the R-code you used to conduct the test.
+
+p = 0.04097
+
+```{r shapiro wilk}
+shapiro.test(catrate$cat.rate)
+```
+
+# Question 3
+What is the null hypothesis for the Shapiro test?
+
+The null hypothesis of the Shapiro test is that the data are normally-distributed.
+
+# Question 4
+Based on the Shapiro test results, is there strong evidence that the sample came from a non-normally-distributed population?
+
+Yes, the data seem to be from a non-normally-distributed population since the p value was less than the significance threshold of 0.05.
+
+# Question 5
+Show the code you used to conduct the t-test.
+
+```{r t-test}
+t.test(catrate$cat.rate, mu = 0.28)
+```
+
+# Question 6
+State the null hypothesis of the test, in plain nontechnical English.
+
+The null hypothesis is that the catastrophe rate (or the proportion of years where there are less than 1 offspring produced per breeding female) is the same as the late-fill rate (or the proportion of times the vernal pools filled later than normal).
+
+# Question 7
+ Is this a one- or two-tailed test?
+ 
+ This is a two-tailed test because the catastrophe rate can be higher or lower than the late-fill rate.
+ 
+# Question 8
+What is the p-value from your t-test? Interpret the p-value as a false-positive rate using nontechnical English that a non-scientist would understand.
+
+The p-value from this test was 0.01, which means that if we replicated this experiment 100 times, we'd wrongly conclude that there was a difference between the two rates once. In other words, we have a 1% chance of being incorrect when deciding that there is a difference between the catastrophe rate and the late-fill rate. 
+
+# Question 9
+What is the confidence interval for the difference between the null hypothesis and alternative hypothesis means? Did it include zero?
+
+CI = 0.3526250 0.7261295
+This confidence interval does not include zero, which indicates that we can be 95% certain that our difference in the two rates is larger than zero. 
+
+# Question 10
+Considering the results from your t-test, did you conclude that there was strong evidence to reject the null hypothesis?
+
+Yes, the p-value (0.01) was below our alpha significance level of 0.05, indicating that there is a significant difference between the 2 rates. 
+
+# Question 11
+Show the code you used to conduct the test.
+
+```{r wrs test}
+wilcox.test(catrate$cat.rate, mu = 0.28)
+```
+
+# Question 12
+Compare the p-value with the p-value you got from the t-test.
+
+The p-value from the Wilcoxon rank sum test (0.006) was less than the p-value from the t-test (0.01).
+
+# Question 13
+Considering the results from your rank sum test, did you conclude that there was strong evidence to reject the null hypothesis?
+
+Yes, because the p-value (0.006) was less than the alpha significance value of 0.05, we can reject the null hypothesis.
+
+# Question 14
+Compare the overall conclusions you could draw from the results of the two tests.
+
+Both tests suggested that the catastrophe rate was significantly different from the late-fill rate.
+
+# Question 15
+Considering the numerical and graphical data exploration, which test do you think was more appropriate for these data?
+
+The Wilcoxon rank sum test would be the more appropriate choice for this analysis because our data were not normally-distributed (a key assumption of the t-test).
+
+# Question 16
+Show the R-code you used to conduct tests of normality for the flipper lengths of Chinstrap and Adelie penguins.
+
+```{r normality flippers}
+require(palmerpenguins)
+penguin_adelie = droplevels(subset(penguins, species == "Adelie"))
+penguin_chinstrap = droplevels(subset(penguins, species == "Chinstrap"))
+
+shapiro.test(penguin_adelie$flipper_length_mm)
+shapiro.test(penguin_chinstrap$flipper_length_mm)
+```
+
+# Question 17
+Interpret the test results. Do you conclude that the flipper lengths are normally-distributed for each species?
+
+Yes, the flipper lengths of both penguin species are normally-distributed because the p-values from both tests were greater than the alpha significance value of 0.05.
+
+# Question 18
+Create a single figure consisting of histograms of flipper lengths of Adelie and Chinstrap penguins.
+
+```{r hist of flippers}
+par(mfrow = c(1,2))
+hist(penguin_adelie$flipper_length_mm, main = "Histogram of \n Adelie Flipper Lengths", xlab = "Flipper Lengths")
+hist(penguin_chinstrap$flipper_length_mm, main = "Histogram of \n Chinstrap Flipper Lengths", xlab = "Flipper Lengths")
+
+```
+
+# Question 19
+State the alternative hypothesis of the test, in plain nontechnical English.
+ 
+The alternative hypothesis is that the two species of penguins have different flipper lengths from one another. 
+
+# Question 20
+Include the code you used to conduct the t-test.
+
+```{r flipper t-test}
+t.test(penguin_adelie$flipper_length_mm, penguin_chinstrap$flipper_length_mm)
+```

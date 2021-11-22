@@ -1,0 +1,142 @@
+---
+title: "ECO634- Lab 4"
+author: "Mercy Melo"
+output: html_document
+---
+
+# Question 1
+Create four vectors of normally-distributed random numbers, norm_17, norm_30, norm_300, and norm_3000.
+
+You should tell R that you want your random values to have a mean of 10.4 and a standard deviation of 2.4.
+
+norm_17 should have 17 elements, norm_30 should have 30 elements, norm_300 should have 300 elements, and norm_3000 should have 3000 elements.
+
+```{r}
+mean <- 10.4
+sd <- 2.4
+
+norm_17 <- rnorm(n = 17, mean = mean, sd = sd)
+norm_30 <- rnorm(n = 30, mean = mean, sd = sd)
+norm_300 <- rnorm(n = 300, mean = mean, sd = sd)
+norm_3000 <- rnorm(n = 3000, mean = mean, sd = sd)
+```
+
+# Question 2-3
+Create a figure including histograms of your vectors norm_17, norm_30, norm_300, and norm_3000.
+
+```{r}
+require(here)
+png(filename = here("lab_04_hist_01.png"), 
+    width = 1500, height = 1600, res = 180, 
+    units = "px")
+par(mfrow = c(2, 2))
+hist(norm_17, main = "17 Random Points")
+hist(norm_30, main = "30 Random Points")
+hist(norm_300, main = "300 Random Points")
+hist(norm_3000, main = "3000 Random Points")
+
+dev.off()
+```
+
+# Question 4
+The four histograms are all relatively the same normally-distributed shape, but as the sample size increases the histogram becomes even more normally-distributed and gains more bins. 
+The histogram of 17 random points is therefore the least normal in its distribution (even showing a gap between 14 and 16) due to its low sample size. 
+The histogram of 3000 points is the most normally distributed with many bins used to categorize the data. 
+
+# Question 5
+The histograms' shape correlates with the number of random points in each vector. When a small number of points are randomly generated, there is a larger possibility of the points not being exactly normally-distributed. This is simply due to random chance that is exacerbated by a small sample size (like flipping a coin only 3 times and getting all tails- it's not that out of the ordinary).
+As the sample size increases, the dispersion of the points becomes more and more normally-distributed. Similarly, adding more points also allows the histogram to be broken down into a larger number of bins that are more specific (because there are more points within each bin).  
+
+# Question 6
+Standard normal distributions are normally-distributed curves that always have a mean of 0 and a standard deviation of 1. Standard normal curves are typically used to calculate probabilities of values occurring within the range of values provided.
+
+# Question 7 + 8
+Plot a density curve for a normal distribution with mean = 10.4 and standard deviation = 2.4. Save the figure as an SVG file.
+```{r}
+mean <- 10.4
+sd <- 2.4
+x = seq(2, 20, length.out = 1000)
+y = dnorm(x, mean = mean, sd = sd)
+
+svg("norm_1.svg", width = 4, height = 4)
+
+plot(x, y, main = "Normal Distribution of Mean 10.4 
+     \n and Standard Deviation of 2.4",
+     type = "l", xlim = c(2, 20))
+abline(h = 0)
+
+dev.off()
+```
+
+# Question 9 + 10
+Experiment with different sets of randomly-generated data and create a figure with 4 plots. Show code for 1 random dataset and plot.
+
+```{r}
+n_pts = 200
+x_min = 1
+x_max = 5
+x = runif(n = n_pts, min = x_min, max = x_max)
+dat = data.frame(x = x, y_observed = rnorm(n_pts))
+
+hist(x, main = "Mercy's X-Values", xlab = "X-Values", 
+     col = "antiquewhite", border = "darkolivegreen4")
+```
+
+# Question 11 + 12
+Visually fit a linear deterministic function through a plot of randomly-generated data. Show R code used to create one of the random datasets in your figure.
+```{r}
+#Making random dataset
+n_pts = 200
+x_min = 1
+x_max = 5
+x = runif(n = n_pts, min = x_min, max = x_max)
+dat = data.frame(x = x, y_observed = rnorm(n_pts))
+head(dat)
+```
+
+# Question 13
+Use the dataset you chose for the previous question and add a column of predicted y-values and a column of residuals.
+
+```{r}
+#Defining line_point_slope function
+line_point_slope = function(x, x1, y1, slope)
+{
+  get_y_intercept = 
+    function(x1, y1, slope) 
+      return(-(x1 * slope) + y1)
+  
+  linear = 
+    function(x, yint, slope) 
+      return(yint + x * slope)
+  
+  return(linear(x, get_y_intercept(x1, y1, slope), slope))
+}
+
+guess_x = 2
+guess_y = 0.1
+guess_slope = -0.025
+
+y_predicted <- line_point_slope(dat$x, guess_x, guess_y, guess_slope)
+pred_and_obs <- data.frame(dat, y_predicted)
+
+resids <- pred_and_obs$y_predicted-pred_and_obs$y_observed
+
+pred_obs_resid <- data.frame(pred_and_obs, resids)
+head(pred_obs_resid)
+
+```
+
+
+# Question 14
+Create a histogram of the model's residuals and a scatterplot of your model's predicted values (x-axis) and residuals (y-axis). 
+
+```{r}
+hist(pred_obs_resid$resids, main = "Model's Residuals", xlab = "Residual Values")
+
+plot(pred_obs_resid$y_predicted, pred_obs_resid$resids, 
+     xlab = "Predicted Y-Values", ylab = "Residual Values",
+     main = "Predicted Y-Values vs. Residual Values")
+```
+
+
+

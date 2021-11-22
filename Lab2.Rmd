@@ -1,0 +1,162 @@
+---
+title: "Lab 2: R Fundamentals 2"
+author: "Mercy Melo"
+output: html_document
+---
+
+# Intermediate Logical Subsetting I
+
+Run the following code to create a large vector containing randomly generated integers between 1 and 12:
+
+```{r}
+n = 12345
+vec_1 = sample(12, n, replace = TRUE)
+head(vec_1)
+```
+
+Use a logical test operator to create a Boolean vector (called vec_2) whose entries are TRUE if the corresponding entry in vec_1 is 3 and FALSE otherwise.
+
+```{r}
+vec_2 <- vec_1 == 3
+vec_1[vec_2]
+#data.frame(vec_1, vec_2)
+```
+
+## Question 1
+
+See R code block above for the R code used to create vec_2.
+
+## Question 2
+
+Give two reasons why determining which elements in vec_1 have value 3 by visual inspection is a bad idea?
+
+1. vec_1 is a large vector that contains many elements. This would take quite a long time to visually inspect and pull out all elements with the value of 3. There is also a huge opportunity for human error when trying to manually identify only elements with a specific value.
+
+1. vec_1 is composed of random integers that are likely to change each time you run the block of code. This would make it very difficult to identify all of the elements with a value of 3 since they would constantly be changing position.
+
+# Intermediate Logical Subsetting II
+
+Use the function length() to determine how many elements are in vec_1.
+
+```{r}
+length(vec_1)
+```
+
+Now, run the following line to check how many entries have the value 3:
+
+```{r}
+sum(vec_1 == 3)
+```
+
+Finally, run the following code several times taking note of how many 3 entries appear each time you run it.
+
+```{r}
+n = 10
+vec_1 = sample(12, n, replace = TRUE)
+paste0("Sum of elements with value 3: ", sum(vec_1 == 3))
+```
+## Question 3
+
+Why didn’t you always get the same count of 3 entries each time?
+
+The count of elements with the value of 3 changed because the vector is composed of randomly generated integers. Each time vec_1 was made, new random integers were used. Since the n was set to a lower value (n=10), I typically had 0 or 1 elements with the value of 3 within vec_1, but that can vary depending on which random integers were used to fill vec_1.
+
+## Question 4
+
+Considering the different vectors generated each time, explain why using a logical test is a safe way to select entries with a value of 3.
+
+Using a logical test is a safe way to identify elements with a value of 3 in a situation like this because vec_2 is set to only identify elements with a value of 3, despite what values vec_1 has. If we were to try to subset vec_1 using a location based identifier (like only pulling out the 3rd, 6th, and 9th element of the vector), those values would be different every time we re-ran our vec_2 code and we wouldn't just see our elements with a value of 3. To see only elements with a value of 3, having a logical test using Boolean values is the easiest and most succinct way subset.
+
+## Question 5
+
+Explain why performing logical subsetting by hand is very very bad practice. You may want consider re-usability of code, working with different sized data sets, and sharing code with collaborators.
+
+Logical subsetting by hand is not only very time-consuming, but is also prone to human error. Subsetting a dataset by hand using elements that have been manually identified to have a specific value will likely lead to missing elements that should be included in the subset. 
+
+Specifying individual elements instead of using a logical test may also specify the incorrect values if the dataset is changed in any way (like if you were using a dataset that was composed of randomly-generated integers). Similarly, sending a manual subsetting code to collaborators could prove detrimental if their dataset is even slightly different from the dataset you used to manually create the subset. In this situation, your collaborator would likely be left with a subset that contains values that are incorrect for their purposes and/or lead to mistakes in interpreting their analyses.
+
+# Basic Loops
+
+Modify the code in the body of the loop to print out a message like “This is loop iteration: 1” for each run through the loop.
+
+```{r}
+for(i in 1:10)
+{
+  print(paste0("This is loop iteration: ", i))
+}
+```
+## Question 6
+
+See R code block above.
+
+# Intermediate Loops
+
+Note that the loop runs through exactly 10 iterations… What if you wanted the loop to execute an arbitrary number of times?
+
+Create a variable, n, that contains an integer value.
+Modify the code for the loop so that it runs n times.
+
+```{r}
+n <- 27
+for(i in 1:n)
+{
+  print(i)
+}
+```
+
+## Question 7
+
+See R code block above
+
+# Intermediate Loops II
+
+Create an integer variable, n, that holds the value 17.
+Write code to create a vector called vec_1 of length n. vec_1 should contain [pseudo]randomly generated integers between 1 and 10.
+
+```{r}
+n <- 17
+vec_1 <- sample(x= 1:10, size= n, replace= TRUE)
+vec_1
+
+for(i in 1:n)
+{
+  print(paste0("The element of vec_1 at index ", i, " is ", vec_1[i]))
+}
+
+```
+
+## Question 8
+
+See R code block above
+
+# Functions
+
+Write a function create_and_print_vec() with integer arguments n, min, and max.
+
+The function should create a vector of n random integers between the values of min and max and loop through the elements of the vector and print a message with the index of the element and its value.
+
+```{r}
+create_and_print_vec= function(n, min=1, max=10)
+{
+  cpvec<- sample(x= min:max, size= n, replace= TRUE)
+  for(i in 1:n)
+  {
+    print(paste0("The element at index ",
+                 i, " is ", cpvec[i]))
+  }
+}
+
+create_and_print_vec(11, min= 1, max= 3)
+```
+
+## Question 9
+
+See R code block above
+
+
+
+
+
+
+
+

@@ -1,0 +1,227 @@
+---
+title: "ECO634- Lab 8"
+author: "Mercy Melo"
+date: "11/3/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+require(palmerpenguins)
+penguin_dat = droplevels(subset(penguins, species != "Gentoo"))
+require(simpleboot)
+adelie<- subset(penguin_dat, penguin_dat$species == "Adelie")
+chinstrap <- subset(penguin_dat, penguin_dat$species == "Chinstrap")
+
+pen_boot = two.boot(sample1 = adelie$flipper_length_mm, 
+         sample2 = chinstrap$flipper_length_mm, 
+         FUN = mean, 
+         R = 10000) 
+require(here)
+require(boot)
+veg = read.csv(here("data", "vegdata.csv"), header = TRUE, sep = ",")
+dat_tree = droplevels(subset(veg, treatment %in% c("control", "clipped")))
+tree_boot = 
+  two.boot(
+    subset(dat_tree, treatment == "clipped")$pine,
+    subset(dat_tree, treatment == "control")$pine,
+    FUN = mean,
+    R = 10000,
+    na.rm = TRUE
+  )
+dat_bird = read.csv(here("data", "bird.sub.csv"))
+dat_habitat = read.csv(here("data","hab.sub.csv"))
+dat_all = merge(
+  dat_bird, 
+  dat_habitat,
+  by = c("basin", "sub"))
+b_sidi_mean = mean(dat_all$b.sidi, na.rm = TRUE)
+b_sidi_sd   = sd(dat_all$b.sidi, na.rm = TRUE)
+dat_all$b.sidi.standardized = (dat_all$b.sidi - b_sidi_mean)/b_sidi_sd
+```
+
+# Question 1
+Calculate the standard deviation of the differences in mean flipper length from your bootstrap simulation. Show the R-code you used to do the calculation.
+
+```{r sd}
+sd(pen_boot$t, na.rm = TRUE)
+```
+
+# Question 2
+Include your histogram in your lab report (you don’t need to show the R-code but make sure your plot includes appropriate title, axes, etc.).
+
+```{r histogram}
+hist(pen_boot$t, 
+     xlab = "Difference in Mean Flipper Length", 
+     main = "Differences in Mean Flipper Length \n of Two Penguin Species \n Using 10,000 Boostrap Iterations")
+```
+
+# Question 3
+What was the 95% bootstrap CI you calculated using quantile()? Show the R-code you used to answer the question.
+
+
+```{r CI}
+quantile(pen_boot$t, probs = c(0.025, 0.975), na.rm = TRUE)
+```
+
+# Question 4
+Do you think the resampled differences in means follow a skewed distribution? Your answer should make reference to the mean, median, and histogram of the differences in means.
+
+I believe the resampled difference in means is quite normally distributed. The mean and median values of the resampled data are very close (mean = -5.856, median = -5.863) suggest that the data is centralized over a value of around -5.86 with little skew in either direction. The histogram further supports this as the data appears very normally-distributed in shape. 
+
+# Question 5
+Show the R-code you used to create pen_ecdf()
+
+```{r pen_ecdf}
+pen_ecdf = ecdf(pen_boot$t)
+```
+
+# Question 6
+What is the probability, according to the empirical distribution function, of observing a mean difference of -4.5 or greater? Show the R code you used to perform the calculation.
+
+Probability of difference being > or = -4.5 is:
+```{r -4.5 or greater}
+1 - pen_ecdf(-4.5)
+```
+
+# Question 7
+What is the probability, according to the empirical distribution function, of observing a mean difference of -8 or smaller? Show the R code you used to perform the calculation.
+
+Probability of difference being < or = -8 is:
+
+```{r -8 or smaller}
+pen_ecdf(-8)
+```
+
+# Question 8
+
+State the null and alternative hypotheses of a two-sample, two-tailed test for the difference in mean flipper lengths between the two penguin species.
+
+Null= The flipper lengths of the two penguin species were drawn from the same pool of values and therefore have statistically similar means.
+
+Alternative= The mean flipper lengths of the two penguin species are statistically different with either species being significantly larger than the other. 
+
+# Question 9 
+What was the p-value? Show the R-code you used to find out.
+
+P = 0.1005
+```{r pine difference}
+wilcox.test(pine ~ treatment, dat = dat_tree, alternative = "two.sided")
+```
+
+# Question 10
+What were the endpoints of your bootstrap CI? Show the R-code you used to find out.
+
+```{r CI2}
+quantile(tree_boot$t, probs = c(0.025, 0.975))
+```
+
+# Question 11
+What is the observed difference in mean tree counts and does it fall within the 95% bootstrap CI?
+
+The observed difference in pine means between the two treatment groups is 16 (see code below). This falls within the range of the confidence intervals calculated above. 
+
+```{r difference in tree counts}
+clipped = subset(dat_tree, treatment == "clipped")
+control = subset(dat_tree, treatment == "control")
+mean(clipped$pine) - mean(control$pine)
+```
+
+# Question 12
+Briefly describe the Simpson diversity index, and explain what it quantifies.
+
+The Simpson diversity index takes into account the number of species present as well as the relative abundance of organisms within each species to produce a biodiversity index. Higher values indicate higher diversity of organisms within a habitat and lower values indicate less diversity within a habitat.
+
+# Question 13
+Show the code you used to z-standardize the s.sidi column.
+
+```{r z-standardize}
+s_sidi_mean = mean(dat_all$s.sidi, na.rm = TRUE)
+s_sidi_sd = sd(dat_all$s.sidi, na.rm = TRUE)
+
+dat_all$s.sidi.standardized = (dat_all$s.sidi - s_sidi_mean)/s_sidi_sd
+
+```
+
+# Question 14
+Show the code for your completed loop.
+
+```{r underlying, include= FALSE}
+dat_1 = 
+  subset(
+    dat_all,
+    select = c(b.sidi, s.sidi))
+m = 10000 
+result = numeric(m)
+for(i in 1:m)
+{
+  index_1 = sample(nrow(dat_1), replace = TRUE)
+  index_2 = sample(nrow(dat_1), replace = TRUE)
+  
+  dat_resampled_i = 
+    data.frame(
+      b.sidi = dat_1$b.sidi[index_1],
+      s.sidi = dat_1$s.sidi[index_2])
+  
+  fit_resampled_i = lm(b.sidi ~ s.sidi, data = dat_resampled_i)
+  slope_resampled_i = coef(fit_resampled_i)[2]
+  
+  print(slope_resampled_i)
+  
+  result[i] = coef(fit_resampled_i)[2]
+} 
+```
+
+```{r for loop, eval = FALSE}
+m = 10000 
+result = numeric(m)
+for(i in 1:m)
+{
+  index_1 = sample(nrow(dat_1), replace = TRUE)
+  index_2 = sample(nrow(dat_1), replace = TRUE)
+  
+  dat_resampled_i = 
+    data.frame(
+      b.sidi = dat_1$b.sidi[index_1],
+      s.sidi = dat_1$s.sidi[index_2])
+  
+  fit_resampled_i = lm(b.sidi ~ s.sidi, data = dat_resampled_i)
+  slope_resampled_i = coef(fit_resampled_i)[2]
+  
+  print(slope_resampled_i)
+  
+  result[i] = coef(fit_resampled_i)[2]
+} 
+```
+
+# Question 15
+In your report, include a plot of your histogram with vertical lines showing the observed slope and the critical value from the re-sampled MC slopes.
+
+
+```{r uderlying code, include = FALSE}
+fit_1 = lm(b.sidi ~ s.sidi, data = dat_all)
+coef(fit_1)
+slope_observed = coef(fit_1)[2]
+```
+
+```{r hist of regression slopes}
+critical = quantile(result, c(.05))
+{hist(result, main = "Null Distribution of Regression Slope", xlab = "Slope Parameter")
+abline(v = slope_observed, lty = "solid", col = "blue", lwd = 2)
+abline(v = critical, lty = "dotted", col = "red", lwd = 2)}
+```
+
+# Question 16
+What was your critical value? Was the observed slope less than the critical value?
+
+My critical value was -0.01321671. The observed slope was -0.02437131, which is less than the critical value.
+
+```{r critical value}
+quantile(result, c(.05))
+slope_observed
+```
+
+# Question 17
+What is your conclusion regarding the evidence of a negative relationship between vegetation cover diversity and bird diversity? Make sure to justify your conclusions using the results of your analysis.
+
+From this analysis, we can conclude that bird biodiversity is in fact negatively correlated with habitat diversity. We re-sampled our diversity data under the assumption of the null hypothesis (bird diversity and habitat diversity aren't related) to which we compared our observed data. Using the re-sampled data under the null hypothesis, we calculated a 95% critical value of the slope between bird diversity and habitat diversity beyond which we could conclude that the two were truly correlated in some way. We found that our observed value of the slope between the two diversity metrics was beyond the critical value of the slope under the null hypothesis, which indicates that our observed slope would only be seen under 5% of the time if there was no true correlation between the two diversity metrics. We can therefore conclude that it is likely that the correlation we detected was true and that bird biodiversity is in fact negatively correlated with habitat diversity. 

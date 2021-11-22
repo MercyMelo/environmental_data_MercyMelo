@@ -1,0 +1,27 @@
+---
+title: "R Markdown Documents- Part 1"
+subtitle: "Analysis of Environmental Data"
+author: "Mercy Melo"
+output: 
+  html_document:
+   toc: true
+   toc_float: true
+---
+
+# Introduction
+
+Hello, my name is **Mercy Melo** and I am starting my first year at UMass Amherst. I am pursuing a PhD through the *Environmental Conservation* program with a research project focused on assessing the causes of decline in American kestrels.
+
+# Concepts List
+
+1. Theory behind common statistical tests
+1. Coding more efficiently and concisely
+1. Drawing conclusions from statistical outputs
+
+# Course List
+
+* Evolution
+* Comparative Animal Physiology
+* Birds of Prey in Winter
+
+
