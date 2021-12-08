@@ -1,0 +1,225 @@
+---
+title: "Final Part 2- Analyzing Delomys Species Data"
+author: "Mercy Melo"
+date: "12/7/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+require(here)
+delomys <- read.csv(here("data", "delomys.csv"), header = TRUE, sep = ",")
+```
+
+# Numerical Exploration
+
+Delomys data structure exploration:
+
+```{r summary}
+summary(delomys)
+```
+
+Test of normality:
+
+```{r normality}
+shapiro.test(delomys$body_mass)
+shapiro.test(delomys$body_length)
+```
+
+# Graphical Exploration
+
+```{r scatterplot, echo=FALSE}
+plot(delomys$body_mass, delomys$body_length, 
+     main = "Delomys Body Mass vs. Body Length", 
+     xlab = "Body Mass (g)", 
+     ylab = "Body Length (mm)",
+     col = "darkgoldenrod",
+     pch = 8)
+```
+
+
+```{r body mass, echo=FALSE}
+hist(delomys$body_mass, col = "darkolivegreen",
+     xlab = "Body Mass (g)",
+     main = "Histogram of Body Mass")
+```
+
+```{r body length, echo = FALSE}
+hist(delomys$body_length, col = "darkgoldenrod4",
+     xlab = "Body Length (mm)",
+     main = "Histogram of Body Length")
+```
+
+```{r boxplot, echo = FALSE}
+boxplot(delomys$body_mass ~ delomys$binomial,
+        main = "Delomys Body Mass \n Based on Species",
+        xlab = "Species", ylab = "Body Mass (g)",
+        col = "darkolivegreen4")
+```
+
+```{r boxplot2, echo = FALSE}
+boxplot(delomys$body_mass ~ delomys$sex,
+        main = "Delomys Body Mass \n Based on Sex",
+        xlab = "Sex", ylab = "Body Mass (g)",
+        col = "burlywood3")
+```
+
+```{r boxplot 3, echo=FALSE}
+boxplot(delomys$body_mass ~ delomys$binomial + delomys$sex,
+        names= c("Dorsalis Female","Subl. Female", "Dorsalis Male", "Subl. Male"),
+        xlab = "", ylab = "Body Mass", 
+        main = "Body Mass Based on Species and Sex",
+        col = "darkolivegreen")
+```
+
+## Question 1
+Qualitatively describe the relationship between body mass and length. Does the relationship seem linear, curved, nonexistent?
+
+Body mass and body length seem to be linearly-correlated with higher body lengths yielding higher body masses (a positive correlation). Despite this trend, the slope of the relationship is not steep and there are still quite a few outliers that may blur the analysis. 
+
+## Question 2
+Qualitatively describe the shapes of the histograms.
+Do the data appear normally-distributed? Explain why or why not.
+
+The body mass histogram seems very normally-distributed with an even spread within the bell-shaped curve structure. The body length histogram seems less normally-distributed but still follows somewhat of a bell-shaped curve. Most of the data seems to fall in a single bin (100-125mm), visually skewing the data. The body length histogram also reveals some outliers that are quite far to the right of the rest of the data (around 225mm).
+
+## Question 3
+Using both the histograms and normality tests, do you think the (unconditioned) body masses and body length are normally-distributed?
+
+Although visual inspection of the histograms for both body mass and body length suggest that the data are more-or-less normally-distributed, the normality tests would suggest otherwise. The Shapiro-Wilk tests for both columns of data (body mass and body length) returned a highly-significant p-value indicating a non-normal distribution. Given both assessments of the data, I am inclined to accept that the data are not normally-distributed due to the results of the normality tests.
+
+## Question 4
+Examine the conditional boxplots. Describe any graphical evidence you see for body mass differences based on species and/or sex.
+
+Body mass seems to be affected by species with Delomys dorsalis individuals being larger than Delomys sublineatus. Based on the boxplot conditioned on both sex and species, the effect of species seems to be equal for both sexes. Sex does not seem to greatly affect body mass as both sexes appear to have the same mean body mass in both the boxplot conditioned only on sex and the boxplot conditioned on both sex and species. 
+
+# Model Building
+
+```{r models, }
+fit1 <- lm(delomys$body_length ~ delomys$body_mass)
+fit2 <- lm(delomys$body_mass ~ delomys$sex)
+aov(fit2)
+fit3 <- lm(delomys$body_mass ~ delomys$binomial)
+aov(fit3)
+fit4 <- lm(body_mass ~ sex + binomial, data = delomys)
+aov(fit4)
+fit5 <- lm(body_mass ~ sex * binomial, data = delomys)
+aov(fit5)
+```
+
+# Model Diagnostics
+
+```{r resid hist, echo = FALSE}
+hist(residuals(fit1), main = "Fit 1 Residuals", xlab = "Residuals", col = "burlywood3")
+hist(residuals(fit2), main = "Fit 2 Residuals", xlab = "Residuals", col = "darkolivegreen4")
+hist(residuals(fit3), main = "Fit 3 Residuals", xlab = "Residuals", col = "darkgoldenrod")
+hist(residuals(fit4), main = "Fit 4 Residuals", xlab = "Residuals", col = "darkolivegreen")
+hist(residuals(fit5), main = "Fit 5 Residuals", xlab = "Residuals", col = "darkgoldenrod4")
+```
+
+```{r resid shapiro}
+shapiro.test(residuals(fit1))
+shapiro.test(residuals(fit2))
+shapiro.test(residuals(fit3))
+shapiro.test(residuals(fit4))
+shapiro.test(residuals(fit5))
+```
+
+## Question 5
+What do you conclude about residual normality based on the numerical and graphical diagnostics?
+
+All of the models seem to have non-normal residuals based on the Shapiro-Wilk tests. Although the histograms make the residuals appear normally-distributed, the Shapiro-Wilk tests all resulted in p-values below the alpha significance value of p = 0.05. 
+
+## Question 6
+Are violations of the normality assumption equally severe for all the models?
+
+All of the ANOVAs seem to violate the assumption of normality quite equally, bu the first model (the linear model of body mass vs. body length) violates the assumption of normality by orders of magnitude more. 
+
+# Model Interpretation
+
+```{r model coefficients}
+knitr::kable(coef(summary(fit1)))
+knitr::kable(coef(summary(fit2)))
+knitr::kable(coef(summary(fit3)))
+knitr::kable(coef(summary(fit4)))
+knitr::kable(coef(summary(fit5)))
+```
+
+```{r aov tables}
+knitr::kable(anova(fit2))
+knitr::kable(anova(fit3))
+knitr::kable(anova(fit4))
+knitr::kable(anova(fit5))
+```
+
+## Question 7
+What is the magnitude of the mass/length relationship?
+
+As mass increases by 1 unit, body length also increases by 0.875mm.
+
+## Question 8
+What is the expected body length of an an animal that weighs 100g?
+
+76mm + 100*0.875mm = 163.5mm
+
+## Question 9
+What is the expected body length of an animal that weighs 0g?
+
+The intercept value: 76.125mm
+
+
+## Question 10
+What is the base level for sex?
+
+Female
+
+## Question 11
+What is the base level for binomial?
+
+Delomys dorsalis
+
+## Question 12
+Which sex is heavier?
+
+Males
+
+## Question 13
+Which species is heavier?
+
+Delomys dorsalis
+
+## Question 14
+Are sex and species significant predictors for body mass?
+
+Yes, both sex and species are significant predictors of body mass.
+
+## Question 15
+Is there a significant interaction?
+ 
+No, there is no significant interaction between sex and species.
+
+## Question 16
+How dos the significance (as measured by p-value) of either of the main effects (sex and species) differ between the single-predictor models, the additive model, and the interactive model?
+
+The significance of sex is lower in the additive and interactive models (both p = 0.0001150) than in the single-predictor model (p = 0001951), but the significance of species is p = 0 for all model types.
+
+
+# Model Comparison
+
+```{r AIC}
+AIC(fit1)
+AIC(fit2)
+AIC(fit3)
+AIC(fit4)
+AIC(fit5)
+```
+## Question 17
+Which two models have the lowest AIC?
+
+Fit 1 and fit 4 have the lowest AIC values.
+
+## Question 18
+Which of the two models with lowest AIC scores would you select?
+
+I would choose fit 4 to model my data because it explains the relationship between body mass, sex, and species thoroughly without becoming overly-complicated. Fit 4 is helpful for predicting body mass given the sex and species of the individual and displays that there is a clear and significant effect of both sex and species on body mass. 
+To contrast, fit 1 only provides information on body mass using data on body length. Although there seems to be a correlation in the data, body length seems to be a lower-quality predictor of body mass than sex and species. Fit 1 was also less normal in its residuals, suggesting that the model fit is not as precise as fit 4. 

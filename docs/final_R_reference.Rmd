@@ -1,0 +1,515 @@
+---
+title: "Final Project"
+author: "Mercy Melo"
+date: "12/2/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+require(here)
+ginkgo = read.csv("ginkgo_data_2021.csv", header = TRUE, sep = ",")
+```
+
+# R Reference Guide {.tabset .tabset-pills}
+
+
+## Loading Data and Packages
+
+### Installing and loading packages
+To work with data, we often need to use packages that each include multiple useful functions. These packages can be installed from the web and then recalled later in scripts where they are needed. To install a package, we use the install.packages() function as below:
+
+```{r installing packages, eval=FALSE}
+# Note that when we are installing a package the package name must be in quotation marks
+install.packages("here")
+```
+
+Once a package is installed once, it never needs to be installed again on the same device. 
+
+Once we install a package, we need to tell R to recall that package before we can actually use it. Using the library() and require() functions allows R to recollect all of the information and functions within that package and prepare them for use. 
+
+Both library() and require() complete the same task and can be used as follows:
+
+```{r library and require, message=FALSE, warning=FALSE}
+# Note that you do NOT need to put quotation marks around the package name when using the require() and library() functions
+require(here)
+library(here)
+```
+
+The require() and library() functions can also be used to recall built-in data-sets within R such as mtcars and palmerpenguins.
+
+```{r built-in data-sets, message = FALSE, warning=FALSE}
+require(palmerpenguins)
+library(palmerpenguins)
+```
+
+
+### Setting Working Directory
+Besides working with built-in data-sets in R, we can also import data-sets from a specified folder on our device. Typically we'll want to keep all of our R-related files in the same folder on our device (in a folder I recommend naming "R"). 
+Once we have this folder created somewhere on our device, we have to tell R where it is. To do this we can either click on the "Session" tab at the top of the R window, navigate to "Set Working Directory" > "Choose Directory", or we can specify the file path using code as follows:
+
+```{r setting working directory, eval=FALSE}
+# Using the "~" symbol, we can begin our file path from 
+  #a relative location rather than specifying the entire file path
+  # This helps us to share code with others that may not have the exact same file set-up as us
+setwd("~/NewR/environmental_data")
+
+#Can also specify entire file path as follows:
+setwd("c:/Users/mercy/Documents/NewR/environmental_data)
+```
+
+### Importing data using read.csv() function
+
+Now that we have our working directory set, we can import data from our working directory folder. The read.csv() function allows us to import a CSV file into our R environment using the following code:
+
+```{r importing data, eval=FALSE}
+# The read.csv function requires 3 inputs: the file name (in quotation marks), 
+  #whether there is a header row or not,
+  # and the type of separating mark (for CSVs it's usually a comma (","))
+read.csv("ginkgo_data_2021.csv", header = TRUE, sep = ",")
+```
+
+Since our data file is not just in the environmental_data folder, but instead is in a subfolder within environmental_data, we need to use the here() function to help R find the file. Using here() within the read.csv() command helps R to locate the desired file and import it in one step.
+
+The here() function requires only the names of the subfolders within the working directory and the file name (all in separate quotes). Since our working directory is set to our environmental_data folder and the ginkgo file is within the data folder within the environmental_data folder, our code would look like this:
+
+```{r here function, eval=FALSE}
+read.csv(here("data", "ginkgo_data_2021.csv"), header = TRUE, sep = ",")
+
+# Further, we can name this file something for easy reference in the future.
+# The following line imports the data and names it "ginkgo"
+ginkgo <- read.csv(here("data", "ginkgo_data_2021.csv"), header = TRUE, sep = ",")
+```
+
+## Data Structures
+
+Besides importing data from our working directory, we can also create data-holding structures such as vectors and data frames right in R. Here's some basics on how to get started with structuring data!
+
+### Using the c() function
+The c() function combines what you input as arguments into a vector (a 1-dimensional data structure consisting of one or more elements).
+The arguments must all be the same type (like numeric *or* character, but not both types in the same command).
+
+Here's an example of how to use the c() function:
+
+```{r c function}
+# num_vec is now a vector containing 4 numbers
+num_vec <- c(32, 57, 83, 91)
+
+# char_vec is now a vector containing 4 words
+char_vec <- c("lake", "pond", "river", "stream")
+```
+
+To see the contents of any vectors (or other files) you make, you can use the print() function with the name of the vector as the argument as follows:
+
+```{r print function}
+print(num_vec)
+print(char_vec)
+
+# Just typing the name of the vector accomplishes the same task
+num_vec
+char_vec
+```
+
+### Length() function
+
+The length() function is helpful for checking the contents of a vector and determining the number of items a vector contains. The length() function can be used on both numeric and character-based vectors as follows:
+
+```{r length}
+length(num_vec)
+length(char_vec)
+```
+
+Knowing the number of items in a vector can be helpful for checking a vector once it's created (ensuring all values inputted into the c() function are included in the final vector) or to prepare for analyzing a vector that is unknown to you. 
+
+
+### Creating matrices and data frames
+
+Besides creating vectors, we can also create more complicated structures with multiple rows and columns. A matrix is a way of organizing data into columns and rows without any type of headers or row names. A matrix can only contain one data type (either numerical or character, but not both). 
+
+The matrix() function requires 3 arguments: data (where R is sourcing the values from), nrow (number of rows), and ncol (number of columns).
+
+There's also an optional byrow argument where you can specify if you want the matrix to be filled by row (byrow = TRUE) or by column (byrow = FALSE). The default value for byrow is TRUE, so if byrow is not specified the matrix will automatically fill by rows.
+
+```{r matrix}
+matrix(data = char_vec, nrow = 2, ncol = 2, byrow = TRUE)
+matrix(data = char_vec, nrow = 2, ncol = 2, byrow = FALSE)
+
+# You can make the matrix asymmetrical as well
+matrix(data = num_vec, nrow = 4, ncol = 1, byrow = TRUE)
+matrix(data = num_vec, nrow = 1, ncol = 4, byrow = TRUE)
+
+# The whole matrix must be filled, however, so you cannot fill a 2 x 3 matrix with a vector of just 4 values like this:
+matrix(data = num_vec, nrow = 3, ncol = 2, byrow = TRUE)
+```
+
+A more complicated version of a matrix is called a data frame and is characterized by having both rows and columns that may contain differing types of values (numerical and character types are both allowed in the same data frame). A data frame is created by combining multiple vectors that make up the different columns. For example, we can combine our num_vec with our char_vec into a data frame as follows:
+
+
+```{r data frames}
+data.frame(num_vec, char_vec)
+```
+
+This doesn't seem very helpful when using random vectors, but can be very useful for organizing data like this:
+
+```{r data frames2}
+Speed <- c(10, 13, 27, 19, 12)
+RPM <- c(1500, 1700, 3000, 2800, 1650)
+Engine_Sound <- c("Quiet", "Moderate", "Very Loud", "Loud", "Moderate")
+
+data.frame(Speed, RPM, Engine_Sound)
+```
+
+### Exploring data frames
+
+When receiving a data frame you're unfamiliar with, it is important to learn more about the structure of the data before beginning an analysis. There are multiple functions that can be helpful for getting to know a data frame. 
+
+Similar to the length() function, we can learn about the numbers of rows and columns in our data frame by using nrow() and ncol(), respectively. Here's an example using our ginkgo data we imported in the first section:
+
+```{r nrow and ncol}
+# Finding the number of rows in the ginkgo data frame
+nrow(ginkgo)
+
+# Finding the number of columns in the ginkgo data frame
+ncol(ginkgo)
+
+```
+
+Instead of using nrow() and ncol() separately, we can instead use dim() which tells us both dimensions of our data frame (both the number of rows and number of columns). Here's an example using the ginkgo data frame again:
+
+```{r dim}
+# dim provides the number of rows and then the number of columns
+dim(ginkgo)
+```
+
+There are other ways to explore a new data frame in greater detail to learn more about what type of data each column contains and even the means and quartile values of the data. Two helpful functions to achieve this knowledge include  str() and summary(). 
+
+Str() provides a list of column names with the corresponding data type in that column (int= integer, num = numerical, logi = TRUE or FALSE). It also provides the first couple entries for each column to help us get a general idea of what the data looks like.
+
+```{r str}
+str(ginkgo)
+```
+
+Summary() provides more in-depth information about the values in each column by reporting minimum/maximum values, means, medians, and quartile values. For logical columns (non-numerical), a count of TRUE and FALSE values is provided. 
+
+```{r summary}
+summary(ginkgo)
+```
+
+## Subsetting
+
+### Subsetting using the $ sign
+
+When we want to work with a specific portion of a data set instead of the whole thing, we can subset it in different ways. The easiest way to subset a column out of a data set is to use the "$" sign in this fashion:
+
+```{r $}
+# To specify a column we first type the name of the data frame we're referring to, then the $ sign, and then the name of the column like this: 
+width <- ginkgo$max_width
+```
+
+When typing the data frame name followed by the "$" sign, R will often display a list of column names for you to choose from, which is very convenient. 
+
+We can also use this method when trying to analyze a certain column without subsetting it. 
+For example, if we want to find the mean of the "maxwidth" column of the ginkgo data frame, we could subset out the column and then find the average of the subset *or* we can simply use "$" sign in the mean() command like this:
+
+```{r $ in function}
+mean(ginkgo$max_width)
+```
+
+### Subsetting by position
+
+When we know the order of our columns or rows, we can also use numbers to describe the subset of data we'd like to specify. If we're not sure of the order of our columns, we can use the names() function to tell us:
+
+```{r names}
+names(ginkgo)
+```
+
+Now that we know the names of our columns, we can specify which columns we want to subset based on the number associated with that column. To subset a data frame using the numbers associated with rows and columns, we use brackets following these rules:
+
+Within the brackets there are two values, the row number (before the comma) and the column number (after the comma). 
+
+When we only want to specify a single row in a data frame, we would put the row number followed by a comma and no column number (ex. [2,] or [5,]). 
+
+If we only want to specify a column and not a row, we would leave a blank where the row number would be, then put a comma and our column number (ex. [,1] or [,7]). 
+
+If we want to specify a single value (an intersection between a row and column), we can specify both a row and a column that correspond with our desired value (ex. [2,7] or [4,2]). 
+
+Here are some examples using our ginkgo data:
+
+```{r brackets}
+# Subsetting just column 3 of our ginkgo data
+max_width <- ginkgo[,3]
+# The head() function shows us the top 6 rows of a data frame and can be useful 
+  #to check if subsetting worked without seeing the entire subset of data
+head(max_width)
+
+# Subsetting just row 1 of our ginkgo data
+row_1 <- ginkgo[1,]
+row_1
+
+# Subsetting a specific element in row 2, column 3
+row2_column3 <- ginkgo[2,3]
+row2_column3
+```
+
+### Conditional subsetting
+
+The final way we can subset is conditional subsetting, where our subset only contains data that meets a specified criterion. To set this criteria, we use the subset() function. The subset function requires you to specify a data frame name, the column name, and the value within that column you'd like to subset by. For instance, if we only want to view data on the Adelie species of penguin in our PalmerPenguins data frame, we could subset like this:
+
+```{r adelie}
+# Within the subset() command, you first specify the data frame (penguins), 
+  #then specify the column name (species) and the value you want within the column (Adelie)
+Adelie <- subset(penguins, species == "Adelie")
+head(Adelie)
+
+# We can also use this type of subsetting on numerical columns like this:
+big_penguin <- subset(penguins, bill_length_mm > 39)
+head(big_penguin)
+```
+
+## Numerical Data Exploration
+
+Once we have subsetted our data and learned more about its length and structure, we can begin exploring it more in depth. 
+
+### Summary() function
+
+As described earlier, the summary function is a great tool for learning more about the data in each column of your data frame. It provides a minimum, 1st quartile, median, mean, 3rd quartile, and maximum for each column of numerical data and counts of TRUE and FALSE values in columns of logical data.
+
+The summary() function can be used on a whole data frame or specified column as follows:
+
+
+```{r summary2}
+# Summary of the whole ginkgo data frame
+summary(ginkgo)
+
+# Summary of just the notch depth column of the ginkgo data frame
+summary(ginkgo$notch_depth)
+```
+
+### Describing the mean and standard deviation
+
+If you are only interested in the mean or standard deviation of a set of data, you can use the mean() or sd() function, respectively. While the mean is reported as part of the summary function, the standard deviation is only found by using the sd() function. Both of these functions return a single value when given a single vector or column of data like this:
+
+```{r mean and sd}
+# Mean notch depth of ginkgo leaves
+mean(ginkgo$notch_depth)
+
+# Standard deviation of notch depth of ginkgo leaves
+sd(ginkgo$notch_depth)
+```
+
+One note when running preliminary data analyses like this is that NA values will prevent R from calculating any of the preliminary data calculations such as means and medians. To work around this issue, you can add this short argument to any of the functions that return a value of "NA": na.rm = TRUE. This tells R to remove any NA values before trying to calculate your command. Here's an example using our ginkgo data's petiole length column (which had a few NA values).
+
+```{r NA}
+# Returns a value of "NA", which is less than helpful for our preliminary analyses
+mean(ginkgo$petiole_length)
+
+# Adding na.rm = TRUE allows R to calculate the mean while ignoring any NA values
+mean(ginkgo$petiole_length, na.rm = TRUE)
+```
+## Graphical Data Exploration
+
+### Scatterplots
+
+An easy way to become acquainted with a data set is to plot the data and explore it graphically. The simplest type of plot you can make to look at two columns of continuous data at once is a scatterplot. Scatterplots display one of your column's data on the x-axis and another column's data on the y-axis, allowing you to visualize any correlations between the data.
+
+Making scatterplots in R is easy using the plot() function. There are only 2 required arguments for the plot() function (the data for the x-axis and the data for the y-axis), but more arguments can be added to customize your plot. Here are some of those arguments:
+
+Labels:
+
+* xlab = "your x-axis label" - add a label to your x-axis
+
+* ylab = "your y-axis label" - add a label to your y-axis
+
+* main = "your main title" - add a title to the top of your plot
+
+Limits: 
+
+* xlim = c(lower, upper) - add upper and lower limits to your x-axis
+
+* ylim = c(lower, upper) - add upper and lower limits to your y-axis
+
+Asthetics:
+
+* col = "darkolivegreen" - choose the colors of your points and specify the name of the color in quotation marks or the number associated with that color in the R palette 
+
+* pch = 1 - choose the shape of your points (0 = square, 1 = empty circle, 2 = triangle, 3 = plus, 4 = X, etc.)
+
+* cex = 1 - choose the size of text in proportion to the points. cex > 1 = larger points, cex < 1 = smaller points
+
+More options for each of these arguments can be found here: https://www.statmethods.net/advgraphs/parameters.html
+
+```{r plot}
+plot(ginkgo$max_depth, ginkgo$max_width, 
+     xlab = "Maximum Leaf Depth", 
+     ylab = "Maximum Leaf Width",
+     main = "Ginkgo Leaf Dimensions", 
+     xlim = c(15, 150), 
+     ylim = c(15, 150), 
+     col = "deepskyblue", 
+     pch = 18, 
+     cex = 1.5)
+```
+
+### Histograms
+
+Another way to visualize data is with a histogram. Histograms display the spread of data points within a single column by plotting the data values on the x-axis and their frequency in the data set on the y-axis. Histograms can be easily created in R using the hist() function. hist() only requires the name of the column you wish to display, but can also accept an extra argument to specify the size of the "bins" the data are fitting into (breaks). Here's an example of creating a histogram using our penguin data:
+
+```{r hist}
+# Notice how changing the number of breaks alters the number of bins the data are characterized into
+hist(penguins$flipper_length_mm, breaks = 4)
+hist(penguins$flipper_length_mm, breaks = 13)
+
+# We can customize axes labels, titles, and colors just like we did with the scatterplot!
+hist(penguins$flipper_length_mm, breaks = 4, 
+     main = "Histogram of Penguin Flipper Lengths", 
+     xlab = "Penguin Flipper Lengths (mm)",
+     col = "chartreuse")
+```
+
+### Boxplots
+
+Boxplots are similar to histograms, but display the data values in a vertical box with lines extending to the minimum and maximum points. The vertical box's bounds are based on the 1st and 3rd quartiles of the data and within the vertical box is a line at the mean value. Boxplots can be made in R by using the boxplot() function while specifying a column of data or conditioning the boxplot to represent multiple groups of data. 
+
+```{r boxplot}
+# Basic boxplot of ginkgo petiole length, notice lines extending to 
+  #minimum and maximum values and points representing outliers
+boxplot(ginkgo$petiole_length)
+
+# We can customize our boxplot just as we did with the other plots
+boxplot(ginkgo$petiole_length, 
+        ylab = "Petiole Length", 
+        main = "Ginkgo Leaf Petiole Length",
+        col = "darkviolet")
+```
+
+A boxplot can represent one column of data while being conditioned by another column. For instance, if we know that the shade provided by a tree was dependent on if it deciduous or coniferous, we would want to separate out our shade data based on the two types of trees. To condition a boxplot, we can simply alter the code used above by adding a "~" symbol followed by the column we want to condition the data. Here's an example using our ginkgo data: 
+
+```{r conditional boxplot}
+boxplot(ginkgo$max_width ~ ginkgo$seeds_present, 
+        ylab = "Leaf Maximum Width", 
+        xlab = "Seeds Present?", 
+        main = "Leaf Maximum width Based on Presence of Seeds",
+        col = "deeppink")
+```
+
+### Adding multiple plots to one window
+
+When exploring data graphically, it can be helpful to look at more than one plot at once. We can add as many plots as we want to the viewing window using the par(mfrow) function. This function should be written on a line before your first plot and should include the number of plots you want in each column and row of the viewing window. For instance, if you want 4 plots in the window organized into 2 rows and 2 columns, you would write your code like this:
+
+```{r multiple plots1}
+par(mfrow = c(2,2))
+hist(penguins$bill_length_mm, main = "Penguin Bill Length", xlab = "Bill Length (mm)", col = "burlywood4")
+hist(penguins$bill_depth_mm, main = "Penguin Bill Depth", xlab = "Bill Depth (mm)", col = "brown4")
+hist(penguins$flipper_length_mm, main = "Penguin Flipper Length", xlab = "Flipper Length (mm)", col = "darkgreen")
+hist(penguins$body_mass_g, main = "Penguin Body Mass", xlab = "Body Mass (g)", col = "darkorange3")
+```
+
+We can re-arrange our plots by changing the number of rows and columns in our par(mfrow) function like this:
+
+```{r multiple plots2}
+par(mfrow = c(2,4))
+hist(penguins$bill_length_mm, main = "Penguin Bill Length", xlab = "Bill Length (mm)", col = "burlywood4")
+boxplot(penguins$bill_length_mm ~ penguins$species, main = "Penguin Bill Length \n by Species", xlab = "Bill Length (mm)", col = "burlywood4")
+
+hist(penguins$bill_depth_mm, main = "Penguin Bill Depth", xlab = "Bill Depth (mm)", col = "brown4")
+boxplot(penguins$bill_depth_mm ~ penguins$island, main = "Penguin Bill Depth \n by Island", xlab = "Bill Depth (mm)", col = "brown4")
+
+hist(penguins$flipper_length_mm, main = "Penguin Flipper Length", xlab = "Flipper Length (mm)", col = "darkgreen")
+boxplot(penguins$flipper_length_mm~ penguins$sex, main = "Penguin Flipper Length \n by Sex", xlab = "Flipper Length (mm)", col = "darkgreen")
+
+hist(penguins$body_mass_g, main = "Penguin Body Mass", xlab = "Body Mass (g)", col = "darkorange3")
+boxplot(penguins$body_mass_g ~ penguins$year, main = "Penguin Body Mass \n by Year", xlab = "Body Mass (g)", col = "darkorange3")
+```
+
+
+
+## Distribution Functions
+
+Besides working with data collected in the field, we can also work with simulated data that follows one of our known distributions. R has many built-in distributions from which we can sample or simulate data. This data can be extremely helpful for testing whether observed data (data collected in the field) is significantly different than a distribution of data that may act as our null hypothesis distribution. 
+
+### The normal distribution
+
+The normal distribution is based on two arguments (mean and standard deviation) and follows a bell-shaped curve with its peak at the mean and its spread based on the standard deviation. The larger the standard deviation, the wider the curve becomes, stretching the tails of the distribution. Changing the mean has no effect on the width of the distribution, but instead shifts the curve right or left. 
+
+The normal distribution is helpful for assessing the probability of choosing a particular value within the distribution. There are three ways we can look at this probability. 
+
+1. The probability of choosing that value exactly
+1. The probability of choosing a sample that is less than or equal to that value
+1. Having a probability in mind and calculating what value matches up with that probability
+
+R is able to perform all of these probability calculations using separate functions. dnorm() will tell you what the probability is of sampling a single value from the normal distribution. For example, we may want to know what our probability is of getting a 90% on our statistics final by random chance. Let's say the average grade for this final is an 80% and the standard deviation is 10% (most people score between a 60% and 100%) In that case, we would use the function dnorm() like this:
+
+```{r dnorm}
+# The probability of getting exactly 90% on your statistics final
+dnorm(90, mean = 80, sd = 10)
+```
+
+Knowing the probability of sampling an exact value can be useful in some cases, but often we want to know what the cumulative probability is (the probability of getting greater than or less than that specified value). Cumulative probability densities in R are calculated using the function pnorm(). If we want to see what our probability is of getting less than or equal to a 90% on our final, we can use the pnorm() function like this:
+
+```{r pnorm1}
+# The probability of getting a 90 or less on the final
+pnorm(90, mean = 80, sd = 10)
+```
+
+pnorm() automatically calculates the probability of obtaining a sample that is less than or equal to our specified value, but can be adjusted to find a probability that we obtain a sample that is greater than or equal to our value (lower.tail = FALSE). 
+We can also calculate this "upper tail" probability by simply taking 1 - lower tail probability. This is logical because the probability density of the entire distribution is 1, so subtracting a density from 1 simply provides the probability of getting a sample on the other side of your specified value. 
+
+Let's use this logic to see what our probability is of getting a 90% or greater on the stats final:
+
+```{r pnorm2}
+# We can use the lower.tail argument to see only the probability density in the upper tail like this:
+pnorm(90, mean = 80, sd = 10, lower.tail = FALSE)
+
+# Or we can simply subtract our probability density of receiving a grade =< 90% from 1 like this:
+1 - pnorm(90, mean = 80, sd = 10)
+```
+
+If we have a probability density in mind and want to see what value corresponds with that probability density, we can use the qnorm() function. The qnorm() function uses the probability density you provide it and returns a value at which the probability of sampling that value or less is your specified probability. For example, we can use the following code to see what grade the top 5% of students typically get on their stats final:
+
+```{r qnorm2}
+# 95% of students achieve this grade or lower, so we know the top 5% of students achieve this grade or higher:
+qnorm(0.95, mean = 80, sd = 10)
+```
+
+Besides predicting your grade on a stats final, this function can be extremely useful when testing for significance. For example, if we set an alpha significance value of p = 0.05, we essentially want our data to be outside of the main 95% of our distribution and can use qnorm() to find what values are outside of that 95%.
+
+### The binomial distribution
+
+Another distribution that can be helpful when simulating data is the binomial distribution. In many ways the binomial distribution is quite similar to the normal distribution, but the type of data is key to choosing the right distribution for your data. If your data consists of presence/absence, true/false, or short counts (mostly 0s and 1s), the binomial distribution might be the right fit! 
+
+The binomial distribution sees data as either a success or failure and can tell you the probability associated with a specified number of successes given the probability of success for each trial. For example, if we flip a coin and decide that each time we get heads is a success we can create a binomial distribution to predict the probability of getting heads a certain number of times.
+
+Just like the normal distribution, R has three different functions to assess the probability associated with the binomial distribution:
+
+1. The probability of getting an exact number of successes in a set number of trials
+1. The probability of getting your number *or fewer* successes in a set number of trials
+1. The number of trials you would get successes in given a set probability
+
+The set-up is exactly the same as with the normal distribution, but with a slight change in the names of the functions. dbinom() (the binomial equivalent to dnorm) will return the probability of achieving an exact number of successes given a number of trials and the probability of success for each trial. For example, if we want to flip a coin 10 times and want to know the probability of getting 6 heads, we would write the code like this:
+
+```{r dbinom}
+# The probability of getting 6 heads out of 10 coin tosses (each toss has a 50:50 probability of heads vs. tails)
+dbinom(6, size = 10, prob = 0.5)
+```
+
+Just like with pnorm() for the normal distribution, we can use pbinom() to calculate the cumulative probability of achieving a set number *or fewer* successes within a set of trials. Let's say we want to know the probability of getting 8 or fewer heads from flipping a coin 10 times:
+
+```{r pbinom}
+# The probability of getting 8 or fewer heads out of 10 coin flips
+pbinom(8, size = 10, prob = 0.5)
+```
+
+Also similar to pnorm() is that we can use the lower.tail argument or take 1 - pbinom() to get the cumulative probability of getting a set number of successes *or greater*. 
+
+```{r pbinom2}
+pbinom(8, size = 10, prob = 0.5, lower.tail = FALSE)
+1 - pbinom(8, size = 10, prob = 0.5)
+```
+
+qnorm() also has a twin in the binomial distribution realm: qbinom()! qbinom() will take a probability you give it and tell you the number of successes you should have from a set number of trials. Let's say we're making a bet that we can guess the number of heads in a set of 10 coin tosses, but we're going by the "Price is Right" rules where we can guess a value, but the actual number cannot exceed that value. We want to have 80% confidence that we're going to win our bet, so we use qbinom() to see how many heads we should guess:
+
+```{r qbinom}
+# How many heads (or fewer) can we predict with 80% confidence we'll get when flipping a coin 10 times
+qbinom(0.8, size = 10, prob = 0.5)
+# From this output, we learn that we should bet that they'll get 6 or fewer heads in a set of 10 coin flips
+```
